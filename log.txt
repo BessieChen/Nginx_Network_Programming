@@ -4,6 +4,24 @@
 		sudo apt-get install vim-gtk
 		遭遇:
 			问题: 
-				桥接模式无法联网
+				1. 桥接模式无法联网, NAT模式才能联网
+				2. 即便设置了域名解析器也不能 ping www.baidu.com
+				3. 下载xshell7之后, 开启新对话要求填写用户名+密码, 发现错误: SSH服务器拒绝了密码，请再试一次
 			解决:
-				去Vmware的编辑 -> 虚拟网络编辑器 -> 添加一个桥接模式+自动桥接 
+				1. 去Vmware的编辑 -> 虚拟网络编辑器 -> 添加一个桥接模式+桥接至"Realxxx"{这个是主机的网卡, 在此电脑->管理->设备管理器->网络适配器里面可以查看到} 
+				2. 发现是我的ubuntu的网络设置错了, 并没有和主机在同一网段 
+					我错以为ip是 192.168.254.xxx, 其实是 192.168.31.xxx
+					想在同一网段，必需做到网络标识相同，那网络标识怎么算: 把ip和netmask和按位与
+				3. 因为sshd的设置不允许root用户用密码远程登录
+					1. vim /etc/ssh/sshd_config
+						找到
+							# Authentication:
+							LoginGraceTime 120
+							PermitRootLogin without passwd
+							StrictModes yes
+						改成
+							# Authentication:
+							LoginGraceTime 120
+							PermitRootLogin yes
+							StrictModes yes
+					2. 重启ssh: systemctl restart sshd
