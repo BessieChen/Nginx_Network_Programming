@@ -1,0 +1,14 @@
+ps -ef | grep 'Nginx'
+grep -c processor /proc/cpuinfo
+ps -eo pid,ppid,sid,tty,pgrp,comm,stat | grep -E 'bash|PID|nginx'
+ps aux | grep -E 'bash|PID|nginx'
+    aux是一种格式
+sudo strace -e trace=signal -p 1157
+setsid ./nginx_1
+    不管里面有fork()出多少进程, 全部进程的sid都是父进程pid, 全部进程都脱离于终端 
+nohup ./nginx_1
+    所有进程都依旧隶属于终端, 但是输出都到了 nohup.out
+sudo find / -name 'signal.h' | xargs grep -in 'SIGHUP'
+    -i忽略大小写, -n显示行号. 在主目录下找所有signal.h文件中的sighup关键字
+
+
