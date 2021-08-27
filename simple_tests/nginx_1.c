@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+/*练习fork*/
+
 int main(int argc, char *const *argv)
 {
     pid_t pid;

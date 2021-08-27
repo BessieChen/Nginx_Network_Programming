@@ -3,73 +3,44 @@
 #include <unistd.h>
 #include <signal.h>
 
-void my_sig2(int signo)
-{
-    printf("my_sig2\n");
-}
+/*
+子进程即便是后来fork出来的, 也依旧知道父进程之前注册的信号函数
+*/
 
 void my_sig(int signo)
 {
-    printf("get sig_quit\n");
-    if(signal(SIGQUIT, my_sig2) == SIG_ERR)
-    {
-        printf("err5\n");
-        exit(1);
-    }
+    printf("get signal\n");
 }
 
 int main(int argc, char *const *argv)
 {
-    sigset_t newmask, oldmask;
-    if(signal(SIGQUIT, my_sig) == SIG_ERR)
+    pid_t pid;
+    printf("begin\n");
+    if(signal(SIGUSR1, my_sig) == SIG_ERR)
     {
-        printf("err1\n");
+        printf("register failed\n");
+    }
+    pid = fork();
+    if(pid == -1)
+    {
+        printf("forked failed\n");
         exit(1);
     }
-    sigemptyset(&newmask);
-    sigaddset(&newmask, SIGQUIT);
-    if(sigprocmask(SIG_BLOCK, &newmask, &oldmask) < 0)
+    else if(pid == 0)
     {
-        printf("err2\n");
-        exit(1);
-    }
-    if(sigismember(&newmask, SIGQUIT))
-    {
-        printf("quit is member\n");
+        printf("child process, id == %d\n", getpid());
     }
     else{
-        printf("quit is not member\n");
+        printf("father process, id == %d\n", getpid());
     }
-    printf("about to sleep\n");
-    int remain = sleep(20);
-    if(remain > 0)
+
+    for(;;)
     {
-        printf("don't get enough sleep\n");
+        sleep(10);
+        printf("this is id == %d\n", getpid());
     }
-    printf("wake up\n");
     
-    if(sigprocmask(SIG_SETMASK, &oldmask, NULL) < 0)
-    {
-        printf("err3\n");
-        exit(1);
-    }
-    if(sigismember(&oldmask, SIGQUIT))
-    {
-        printf("quit is member\n");
-    }
-    else{
-        printf("quit is not member\n");
-        printf("about to sleep\n");
-        int remain = sleep(20);
-        if(remain > 0)
-        {
-            printf("don't get enough sleep\n");
-        }
-        printf("wake up\n");
-    }
+    printf("end\n");
     return 0;
-
-
-
 
 }
